@@ -1,10 +1,10 @@
 #include "chip8.h"
-#include <stdint.h>
 
 void initialize_chip8(CHIP8 *chip8) {
 	memset(chip8, 0, sizeof(CHIP8));
 	chip8->PC = 0x200;
 	chip8->SP = 0;
+	srand(time(NULL));
 }
 
 int load_rom(CHIP8 *chip8, const char *filename) {
@@ -40,18 +40,18 @@ void execute_instruction(CHIP8 *chip8) {
 			chip8->PC = nnn;
 			break;
 		case 0x3000:
-			if (chip8->V[Vx] != nn) {
-				// ??? then what
+			if (chip8->V[Vx] == nn) {
+				chip8->PC += 2;
 			}
 			break;
 		case 0x4000:
-			if (chip8->V[Vx] == nn) {
-				// ??? then what
+			if (chip8->V[Vx] != nn) {
+				chip8->PC += 2;
 			}
 			break;
 		case 0x5000:
-			if (chip8->V[Vx] != chip8->V[Vy]) {
-				
+			if (chip8->V[Vx] == chip8->V[Vy]) {
+				chip8->PC += 2;
 			}
 			break;
 		case 0x6000:
@@ -76,19 +76,25 @@ void execute_instruction(CHIP8 *chip8) {
 					chip8->V[Vx] = chip8->V[Vx] ^ chip8->V[Vy]; 
 					break;
 				case 4:
-					chip8->V[15] = 1;
+					if (chip8->V[Vx] + chip8->V[Vy] > 256) chip8->V[15] = 1;
 					chip8->V[Vx] += chip8->V[Vy];
 					break;
 				case 5:
 					chip8->V[15] = 0;
-					chip8->V[Vx] += chip8->V[Vy];
+					chip8->V[Vx] -= chip8->V[Vy];
+					break;
+				case 6:
+					break;
+				case 7:
+					break;
+				case 14:
 					break;
 				default:	
 					printf("unknown opcode at 0x8000 :((\n");
 			}
 		case 0x9000:
-			if (chip8->V[Vx] == chip8->V[Vy]) {
-				// ??????
+			if (chip8->V[Vx] != chip8->V[Vy]) {
+				chip8->PC += 2;
 			}
 			break;
 		case 0xA000:
@@ -97,11 +103,14 @@ void execute_instruction(CHIP8 *chip8) {
 		case 0xB000:
 			chip8->PC = nnn + chip8->V[0];
 			break;
-		case 0xC000:
-			// vx = random byte and nn;
+		case 0xC000: {
+			uint8_t r = rand();
+			printf("%d\n", r);
+			chip8->V[Vx] = r & nn; 
 			break;
-		
-			
+		}
+		case 0xD000: 
+    		break;
 		default:
 			printf("unknown opcode :((\n");
 	}

@@ -1,27 +1,25 @@
 #include "graphics.h"
-#include "chip8.h"
 #include <stdint.h>
-unsigned char display[VIDEO_HEIGHT][VIDEO_WIDTH / 8];
 
-void set_pixel(unsigned char x, unsigned char y, unsigned char value) {
+void set_pixel(unsigned char x, unsigned char y, unsigned char value, CHIP8 *chip8) {
 	if (x < VIDEO_WIDTH && y < VIDEO_HEIGHT) {
 		unsigned char byteIndex = x / 8;
 		unsigned char bitIndex = x % 8;
 		if (value) {
-			display[y][byteIndex] |= (1 << (7 - bitIndex));
+			chip8->display[y][byteIndex] |= (1 << (7 - bitIndex));
 		} else {
-			display[y][byteIndex] &= ~(1 << (7 - bitIndex));
+			chip8->display[y][byteIndex] &= ~(1 << (7 - bitIndex));
 		}
 	}
 }
 
-void draw_display() {
+void draw_display(CHIP8 *chip8) {
 	const unsigned char pixelSize = 10;
 	for (int y=0; y<VIDEO_HEIGHT; y++) {
 		for (int x=0; x<VIDEO_WIDTH; x++) {
 			unsigned char byteIndex = x/8;
 			unsigned char bitIndex = x%8;
-			unsigned char pixelValue = (display[y][byteIndex] >> (7 - bitIndex)) & 1;
+			unsigned char pixelValue = (chip8->display[y][byteIndex] >> (7 - bitIndex)) & 1;
 			if (pixelValue) {
                 		DrawRectangle(x * pixelSize, y * pixelSize, pixelSize, pixelSize, BLACK);
             		} else {
@@ -31,7 +29,7 @@ void draw_display() {
 	}
 }
 int posx =  31;
-void create_window() {
+void create_window(CHIP8 *chip8) {
 	if (IsKeyDown(KEY_ONE)) {
          	printf("1 is pressed\n");
         }
@@ -86,11 +84,11 @@ void create_window() {
         ClearBackground(RAYWHITE);
 	for (int y=0; y<VIDEO_HEIGHT; y++) {
 		for (int x=0; x<VIDEO_WIDTH; x++) {
-			set_pixel(x, y, 0);
+			set_pixel(x, y, 0, chip8);
 		}
 	}
-	set_pixel(posx, 15,1);
-	draw_display();
+	set_pixel(posx, 15, 1, chip8);
+	draw_display(chip8);
         EndDrawing();
 }
 

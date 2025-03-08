@@ -1,6 +1,4 @@
-#include "chip8.h"
 #include "graphics.h"
-#include <raylib.h>
 
 int main(int argc, char * argv[]) {
 	const char * filename = argv[1];
@@ -10,7 +8,7 @@ int main(int argc, char * argv[]) {
 	InitWindow(640, 320, "Chip-8 Emulator");
 	SetTargetFPS(60);
 	while (!WindowShouldClose()) {
-		create_window();	
+		create_window(&chip8);	
 	}
 	CloseWindow();
 	printf("\e[1;1H\e[2J");
